@@ -3,7 +3,7 @@ package de.sweetcode.snn.activation;
 public class ReLU extends ActivationFunction {
 
     public ReLU() {
-        super(0, Double.MAX_VALUE);
+        super(0, Short.MAX_VALUE);
     }
 
     @Override

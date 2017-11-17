@@ -6,6 +6,10 @@ public class ArcTan extends ActivationFunction {
         super(-(Math.PI / 2), (Math.PI / 2));
     }
 
+    public ArcTan(boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+        super(-(Math.PI / 2), (Math.PI / 2), isCachingCalculate, isCachingDerivative, cacheStep);
+    }
+
     @Override
     public double calculate(double x) {
         return Math.atan(x);

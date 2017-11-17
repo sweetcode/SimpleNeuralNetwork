@@ -6,6 +6,10 @@ public class TanH extends ActivationFunction {
         super(-1, 1);
     }
 
+    public TanH(boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+        super(-1, 1, isCachingCalculate, isCachingDerivative, cacheStep);
+    }
+
     @Override
     public double calculate(double x) {
         return Math.tanh(x);

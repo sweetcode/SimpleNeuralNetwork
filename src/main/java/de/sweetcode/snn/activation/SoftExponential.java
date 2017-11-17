@@ -9,6 +9,11 @@ public class SoftExponential extends ActivationFunction {
         this.alpha = alpha;
     }
 
+    public SoftExponential(double alpha, boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+        super(Short.MIN_VALUE, Short.MAX_VALUE, isCachingCalculate, isCachingDerivative, cacheStep);
+        this.alpha = alpha;
+    }
+
     @Override
     public double calculate(double x) {
         if(this.alpha < 0) {

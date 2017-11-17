@@ -3,7 +3,7 @@ package de.sweetcode.snn.activation;
 public class Identity extends ActivationFunction {
 
     public Identity() {
-        super(Double.MIN_VALUE, Double.MAX_VALUE);
+        super(Short.MIN_VALUE, Short.MAX_VALUE);
     }
 
     @Override

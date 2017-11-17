@@ -6,6 +6,10 @@ public class Logistic extends ActivationFunction {
         super(0, 1);
     }
 
+    public Logistic(boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+        super(0, 1, isCachingCalculate, isCachingDerivative, cacheStep);
+    }
+
     @Override
     public double calculate(double x) {
         return (1 / (1 + Math.exp(-x)));

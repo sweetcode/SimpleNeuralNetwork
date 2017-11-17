@@ -6,6 +6,10 @@ public class Softsign extends ActivationFunction {
         super(-1, 1);
     }
 
+    public Softsign(boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+        super(-1, 1, isCachingCalculate, isCachingDerivative, cacheStep);
+    }
+
     @Override
     public double calculate(double x) {
         return (x / (1 + Math.abs(x)));

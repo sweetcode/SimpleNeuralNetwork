@@ -75,8 +75,17 @@ public class Network {
                 sum += connection.from().getOutput() * connection.getWeight();
             }
 
-            neuron.setOutput(this.activationFunction.calculate(sum));
-            neuron.setOutputDerivative(this.activationFunction.derivative(sum));
+            if(this.activationFunction.isCachingCalculate()) {
+                neuron.setOutput(this.activationFunction.cachedCalculate(sum));
+            } else {
+                neuron.setOutput(this.activationFunction.calculate(sum));
+            }
+
+            if(this.activationFunction.isCachingDerivative()) {
+                neuron.setOutputDerivative(this.activationFunction.cachedDerivative(sum));
+            } else {
+                neuron.setOutputDerivative(this.activationFunction.derivative(sum));
+            }
 
             if(!(Double.isFinite(neuron.getOutput()) && Double.isFinite(neuron.getOutputDerivative()))) {
                 System.out.println(sum + " -> " + neuron.getOutput() + " <> " + neuron.getOutputDerivative());

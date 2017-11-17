@@ -6,6 +6,10 @@ public class Sinusoid extends ActivationFunction {
         super(-1, 1);
     }
 
+    public Sinusoid(boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+        super(-1, 1, isCachingCalculate, isCachingDerivative, cacheStep);
+    }
+
     @Override
     public double calculate(double x) {
         return Math.sin(x);

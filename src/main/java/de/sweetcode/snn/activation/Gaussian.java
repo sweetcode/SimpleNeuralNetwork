@@ -6,6 +6,10 @@ public class Gaussian extends ActivationFunction {
         super(0, 1);
     }
 
+    public Gaussian(boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+        super(0, 1, isCachingCalculate, isCachingDerivative, cacheStep);
+    }
+
     @Override
     public double calculate(double x) {
         return Math.exp(Math.pow(-x,2));
