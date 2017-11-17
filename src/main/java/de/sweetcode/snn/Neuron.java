@@ -8,12 +8,12 @@ public class Neuron {
     private final List<Connection> ins = new LinkedList<>();
     private final List<Connection> outs = new LinkedList<>();
 
-    private double output;
-    private double outputDerivative;
+    private double output = 0;
+    private double outputDerivative = 0;
 
-    private double error;
+    private double error = 0;
 
-    private double bias;
+    private double bias = 0;
 
     public Neuron() {}
 

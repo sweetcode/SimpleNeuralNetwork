@@ -1,5 +1,7 @@
 package de.sweetcode.snn;
 
+import de.sweetcode.snn.activation.ActivationFunction;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -7,6 +9,7 @@ import java.util.Random;
 public class Network {
 
     private final List<Layer> layers = new LinkedList<>();
+    private final ActivationFunction activationFunction;
 
     /**
      * <span>Initializes a new network.</span>
@@ -15,7 +18,9 @@ public class Network {
      *                            <span>Example: <code>new int[] {2, 3, 1}</code> would init a network: input layer (2 neurons),
      *                            1 hidden layer (3 neurons), and an output layer (1 output).</span>
      */
-    public Network(int[] NETWORK_LAYER_SIZES, long seed) {
+    public Network(long seed, ActivationFunction activationFunction, int[] NETWORK_LAYER_SIZES) {
+        this.activationFunction = activationFunction;
+
         for(int i = 0; i < NETWORK_LAYER_SIZES.length; i++) {
             Layer layer = new Layer(NETWORK_LAYER_SIZES[i]);
             this.layers.add(layer);
@@ -31,12 +36,14 @@ public class Network {
             Layer nextLayer = this.layers.get(layI + 1);
 
             layer.getNeurons().forEach(neuron -> nextLayer.getNeurons().forEach(nextNeuron -> {
-                Connection connection = new Connection(neuron, nextNeuron, random.nextDouble());
+                double weight = activationFunction.getLower() + (random.nextDouble() * activationFunction.getUpper() - activationFunction.getLower());
+                Connection connection = new Connection(neuron, nextNeuron, weight);
                 neuron.getOuts().add(connection);
                 nextNeuron.getIns().add(connection);
             }));
 
         }
+
     }
 
     public void train(double[][] inputs, double[][] targets, double learningRate, int iterations) {
@@ -63,12 +70,17 @@ public class Network {
 
             //--- Activation Function
             double sum = neuron.getBias();
+
             for (Connection connection : neuron.getIns()) {
                 sum += connection.from().getOutput() * connection.getWeight();
             }
 
-            neuron.setOutput(sigmoid(sum));
-            neuron.setOutputDerivative(neuron.getOutput() * (1 - neuron.getOutput()));
+            neuron.setOutput(this.activationFunction.calculate(sum));
+            neuron.setOutputDerivative(this.activationFunction.derivative(sum));
+
+            if(!(Double.isFinite(neuron.getOutput()) && Double.isFinite(neuron.getOutputDerivative()))) {
+                System.out.println(sum + " -> " + neuron.getOutput() + " <> " + neuron.getOutputDerivative());
+            }
         }));
 
         return this.layers.get(this.layers.size() - 1).getOutputs();
@@ -115,10 +127,6 @@ public class Network {
         this.think(input);
         this.backpropagationError(target);
         this.updateWeights(learningRate);
-    }
-
-    private static double sigmoid(double x) {
-        return (1D / (1 + Math.exp(-x)));
     }
 
 }
