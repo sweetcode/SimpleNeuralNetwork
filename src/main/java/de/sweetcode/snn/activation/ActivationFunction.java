@@ -15,19 +15,23 @@ public abstract class ActivationFunction {
     private float cacheHit = 0;
     private float cacheMiss = 0;
 
-    public ActivationFunction(double lower, double upper, boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+    private ActivationFunction(double lower, double upper, boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep, int amplify) {
         this.lower = lower;
         this.upper = upper;
         this.isCachingCalculate = isCachingCalculate;
         this.isCachingDerivative = isCachingDerivative;
 
         if(isCachingCalculate || isCachingDerivative) {
-            this.generateCache(lower, upper, this.cacheStep = cacheStep);
+            this.generateCache(lower, upper, this.cacheStep = cacheStep, amplify);
         }
     }
 
+    public ActivationFunction(double lower, double upper, boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
+        this(lower, upper, isCachingCalculate, isCachingDerivative, cacheStep, 100);
+    }
+
     public ActivationFunction(double lower, double upper) {
-        this(lower, upper, false, false, 0);
+        this(lower, upper, false, false, 0, 0);
     }
 
     public double getLower() {
@@ -61,14 +65,6 @@ public abstract class ActivationFunction {
         return (1 - this.getHitRate());
     }
 
-    public double cachedCalculate(double x) {
-        return this.getCache(this.cacheCalculateKeys, this.cacheCalculateValues, x, true);
-    }
-
-    public double cachedDerivative(double x) {
-        return this.getCache(this.cacheDerivativeKeys, this.cacheDerivativeValues, x, false);
-    }
-
     public boolean isCachingCalculate() {
         return isCachingCalculate;
     }
@@ -77,15 +73,42 @@ public abstract class ActivationFunction {
         return isCachingDerivative;
     }
 
-    private void generateCache(double lower, double upper, double step) {
+    public double cachedCalculate(double x) {
+        return this.getCache(this.cacheCalculateKeys, this.cacheCalculateValues, x, true);
+    }
+
+    public double cachedDerivative(double x) {
+        return this.getCache(this.cacheDerivativeKeys, this.cacheDerivativeValues, x, false);
+    }
+
+    private void generateCache(double lower, double upper, double step, int amplify) {
 
         //@TODO We may wanna allow the people to specify amplifiers for the upper and lower values; or we just let them
         //      decide what the best values are...
-        int amplify = 100;
-        lower -= (lower / step) * amplify;
-        upper += (upper / step) * amplify;
-        this.cacheBias = (int) Math.abs(lower);
+        double tmpLower = 0;
+        double tmpUpper = 0;
+        if(this.cacheStep < 0) {
+            tmpLower = lower + ((lower / step) * amplify);
+            tmpUpper = upper + ((upper / step) * amplify);
+        } else {
+            tmpLower = lower + ((lower * step) * amplify);
+            tmpUpper = upper + ((upper * step) * amplify);
 
+        }
+
+        //--- Checking for overflowing lower & upper limits...
+        // @TODO What use as values if it overflows? The MAX and MIN values of the data type.
+        if(tmpLower > lower) {
+            tmpLower = lower;
+        }
+        if(tmpUpper < upper) {
+            tmpUpper = upper;
+        }
+
+        lower = tmpLower;
+        upper = tmpUpper;
+
+        this.cacheBias = (int) Math.abs(lower);
         //---
         int size = (int) ((upper - lower) / step);
         if(step >= 1) {
@@ -123,7 +146,13 @@ public abstract class ActivationFunction {
         //--- Index
         int index = (int) (x / this.cacheStep) + this.cacheBias;
 
-        if(index + 1 >= inputs.length) {
+        //@TODO If we get an invalid number, what do we do?
+        if(!(Double.isFinite(x))) {
+            return Double.NaN;
+        }
+
+        //@TODO We have to handle index overflows.
+        if(index <= 0 || index + 1 >= inputs.length) {
             this.cacheMiss++;
             if(isCalculate) return this.calculate(x);
             else return this.derivative(x);

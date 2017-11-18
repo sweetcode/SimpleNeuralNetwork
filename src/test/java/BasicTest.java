@@ -2,12 +2,10 @@ import de.sweetcode.snn.Network;
 import de.sweetcode.snn.activation.ActivationFunction;
 import de.sweetcode.snn.activation.ArcTan;
 import de.sweetcode.snn.activation.Logistic;
-import de.sweetcode.snn.activation.SoftExponential;
-import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Random;
-
 
 public class BasicTest {
 
@@ -69,31 +67,14 @@ public class BasicTest {
                 {0}
         };
 
-
-        long now = System.nanoTime();
-
-        long deltaA = 0;
         ActivationFunction functionA = new Logistic();
         Network a = new Network(1, functionA, new int[]{2, 2, 1});
-        a.train(inputs, targets, 0.5, 10_000_000);
-        System.out.println(deltaA = (System.nanoTime() - now));
+        a.train(inputs, targets, 0.3, 100_000_000);
 
-        now = System.nanoTime();
-        long deltaB = 0;
-        ActivationFunction functionB = new SoftExponential(0.5, true, true, 1);
-        Network b = new Network(1, functionB, new int[]{2, 2, 1});
-        b.train(inputs, targets, 0.5, 10_000_000);
-        System.out.println(deltaB = (System.nanoTime() - now));
-
-
-        System.out.println(functionB.getHitRate());
-        System.out.println(functionB.getMissRate());
-
-        // final double DELTA = 0.0001;
-        // Assert.assertArrayEquals(new double[] {0.002238339854384448}, a.think(new double[] {0, 0}), DELTA);
-        // Assert.assertArrayEquals(new double[] {0.9980892762988295}, a.think(new double[] {1, 0}), DELTA);
-        // Assert.assertArrayEquals(new double[] {0.9980885212118851}, a.think(new double[] {0, 1}), DELTA);
-        // Assert.assertArrayEquals(new double[] {0.002238339854384448}, a.think(new double[] {0, 0}), DELTA);
+        System.out.println(Arrays.toString(a.think(new double[]{1, 0})));
+        System.out.println(Arrays.toString(a.think(new double[]{0, 1})));
+        System.out.println(Arrays.toString(a.think(new double[]{1, 1})));
+        System.out.println(Arrays.toString(a.think(new double[]{0, 0})));
     }
 
 }
