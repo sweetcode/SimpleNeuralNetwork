@@ -12,6 +12,9 @@ public abstract class ActivationFunction {
     private double cacheStep;
     private int cacheBias = 0;
 
+    private float cacheHit = 0;
+    private float cacheMiss = 0;
+
     public ActivationFunction(double lower, double upper, boolean isCachingCalculate, boolean isCachingDerivative, double cacheStep) {
         this.lower = lower;
         this.upper = upper;
@@ -45,6 +48,19 @@ public abstract class ActivationFunction {
     private double[] cacheDerivativeKeys;
     private double[] cacheDerivativeValues;
 
+    public double getHitRate() {
+
+        if(!(this.isCachingCalculate && this.isCachingDerivative)) {
+            return 0;
+        }
+
+        return (this.cacheHit / (this.cacheHit + this.cacheMiss));
+    }
+
+    public double getMissRate() {
+        return (1 - this.getHitRate());
+    }
+
     public double cachedCalculate(double x) {
         return this.getCache(this.cacheCalculateKeys, this.cacheCalculateValues, x, true);
     }
@@ -63,10 +79,20 @@ public abstract class ActivationFunction {
 
     private void generateCache(double lower, double upper, double step) {
 
+        //@TODO We may wanna allow the people to specify amplifiers for the upper and lower values; or we just let them
+        //      decide what the best values are...
+        int amplify = 100;
+        lower -= (lower / step) * amplify;
+        upper += (upper / step) * amplify;
         this.cacheBias = (int) Math.abs(lower);
 
         //---
-        int size = (int) ((upper - lower) / step) + 2;
+        int size = (int) ((upper - lower) / step);
+        if(step >= 1) {
+            size = (int) ((upper - lower) * step);
+        }
+        System.out.println(String.format("%.2f; %.2f; %.2f => %d", lower, upper, step, size));
+
         this.cacheCalculateKeys = new double[size];
         this.cacheCalculateValues = new double[size];
 
@@ -98,15 +124,18 @@ public abstract class ActivationFunction {
         int index = (int) (x / this.cacheStep) + this.cacheBias;
 
         if(index + 1 >= inputs.length) {
+            this.cacheMiss++;
             if(isCalculate) return this.calculate(x);
             else return this.derivative(x);
         }
 
+        this.cacheHit++;
+
         double lowerInput = inputs[index];
         double upperInput = inputs[index + 1];
 
-        double lower = values[(index)];
-        double upper = values[(index + 1)];
+        double lower = values[index];
+        double upper = values[index + 1];
 
         //--- Exact match; lower
         if(lowerInput == x) {
@@ -121,6 +150,7 @@ public abstract class ActivationFunction {
             return lower + (((upperInput - lowerInput) / (upper - lower)) * (x / upperInput));
         }
 
+        System.out.println("x -> " + x + " | cacheStep -> " + cacheStep + " | cacheBias -> " + cacheBias);
         throw new IllegalStateException(String.format("%d -> %d", index, inputs.length));
     }
 

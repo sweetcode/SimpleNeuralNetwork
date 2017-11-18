@@ -87,9 +87,9 @@ public class Network {
                 neuron.setOutputDerivative(this.activationFunction.derivative(sum));
             }
 
-            if(!(Double.isFinite(neuron.getOutput()) && Double.isFinite(neuron.getOutputDerivative()))) {
-                System.out.println(sum + " -> " + neuron.getOutput() + " <> " + neuron.getOutputDerivative());
-            }
+            //@TODO What to do if we have NaN?
+            //if(!(Double.isFinite(neuron.getOutput()) && Double.isFinite(neuron.getOutputDerivative()))) {
+            //}
         }));
 
         return this.layers.get(this.layers.size() - 1).getOutputs();
